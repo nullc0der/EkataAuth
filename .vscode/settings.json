@@ -1,0 +1,15 @@
+{
+    "python.linting.pylintEnabled": false,
+    "python.linting.pep8Enabled": true,
+    "python.pythonPath": "/home/prasanta/.virtualenvs/ekata-auth-SyCR8t0b/bin/python",
+    "editor.formatOnPaste": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/*.pyc": true,
+        "**/__pycache__": true
+    },
+}
