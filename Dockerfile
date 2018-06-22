@@ -10,4 +10,3 @@ COPY Pipfile /ekata-auth
 COPY Pipfile.lock /ekata-auth
 RUN pipenv install --system
 COPY . /ekata-auth
-CMD [ "sh", "start.sh" ]
