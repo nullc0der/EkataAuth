@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-oauth-toolkit = "*"
+djangorestframework = "*"
+celery = "*"
+redis = "*"
+uwsgi = "*"
+
+[dev-packages]
+"pep8" = "*"
+"autopep8" = "*"
+ipython = "*"
+
+[requires]
+python_version = "3.6"
