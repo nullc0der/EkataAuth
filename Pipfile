@@ -9,6 +9,7 @@ django-oauth-toolkit = "*"
 djangorestframework = "*"
 celery = "*"
 redis = "*"
+uwsgi = "*"
 
 [dev-packages]
 "pep8" = "*"
