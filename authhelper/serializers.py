@@ -5,6 +5,8 @@ from django.utils.timezone import now
 
 from rest_framework import serializers
 
+from oauth2_provider.models import get_access_token_model
+
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
 
@@ -94,3 +96,40 @@ class ForgotPasswordSerializer(serializers.Serializer):
         if data['password'] != data['password1']:
             raise serializers.ValidationError('Passwords are not matching')
         return data
+
+
+class ConvertTokenSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    email_validation = serializers.CharField()
+    initiator_site = serializers.CharField()
+    initiator_use_ssl = serializers.BooleanField()
+    initiator_email = serializers.EmailField()
+
+
+class AddEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    access_token = serializers.CharField()
+    initiator_site = serializers.CharField()
+    initiator_use_ssl = serializers.BooleanField()
+    initiator_email = serializers.EmailField()
+
+    def validate_access_token(self, value):
+        AccessToken = get_access_token_model()
+        try:
+            AccessToken.objects.get(token=value)
+            return value
+        except AccessToken.DoesNotExist:
+            raise serializers.ValidationError(
+                'Access token is invalid'
+            )
+
+    def validate_email(self, value):
+        try:
+            UserEmail.objects.get(
+                email=value
+            )
+            raise serializers.ValidationError(
+                'This email is associated with another account'
+            )
+        except UserEmail.DoesNotExist:
+            return value

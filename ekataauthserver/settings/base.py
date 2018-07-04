@@ -54,6 +54,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'oauth2_provider',
+    'social_django',
+    'rest_framework_social_oauth2',
 ]
 
 EKATA_AUTH_APPS = [
@@ -169,4 +171,20 @@ OAUTH2_PROVIDER = {
         'baza-beta': 'Baza beta resource access'
     },
     'DEFAULT_SCOPES': ['read', 'write', 'ekata-core']
+}
+
+
+# Authentication
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Social Auth
+SOCIAL_AUTH_FACEBOOK_KEY = get_env_var('SOCIAL_AUTH_FACEBOOK_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET = get_env_var('SOCIAL_AUTH_FACEBOOK_SECRET')
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id, name, email'
 }

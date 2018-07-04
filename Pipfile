@@ -10,7 +10,8 @@ djangorestframework = "*"
 celery = "*"
 redis = "*"
 uwsgi = "*"
-"psycopg2" = "*"
+"django-rest-framework-social-oauth2" = "*"
+"psycopg2-binary" = "*"
 
 [dev-packages]
 "pep8" = "*"
