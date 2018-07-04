@@ -10,8 +10,14 @@ from oauth2_provider.contrib.rest_framework import (
     OAuth2Authentication,
     TokenHasReadWriteScope
 )
+from rest_framework.permissions import AllowAny
 from oauth2_provider.models import get_access_token_model
 from oauth2_provider.views import TokenView
+from oauth2_provider.settings import oauth2_settings
+from oauth2_provider.views.mixins import OAuthLibMixin
+from oauth2_provider.settings import oauth2_settings
+from rest_framework_social_oauth2.oauth2_backends import KeepRequestCore
+from rest_framework_social_oauth2.oauth2_endpoints import SocialTokenServer
 
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
@@ -19,8 +25,11 @@ from authhelper.serializers import (
     RegisterSerializer,
     EmailValidateSerializer,
     ForgotPasswordInitiateSerializer,
-    ForgotPasswordSerializer
+    ForgotPasswordSerializer,
+    ConvertTokenSerializer,
+    AddEmailSerializer
 )
+from authhelper.utils import get_token_user_email_data
 from authhelper.tasks import (
     task_send_validation_email, task_send_password_reset_email)
 
@@ -178,5 +187,88 @@ class ForgotPasswordView(views.APIView):
             resetpasswordtoken.delete()
             return Response({
                 'status': 'success'
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ConvertTokenView(OAuthLibMixin, views.APIView):
+    server_class = SocialTokenServer
+    validator_class = oauth2_settings.OAUTH2_VALIDATOR_CLASS
+    oauthlib_backend_class = KeepRequestCore
+    permission_classes = (AllowAny, )
+
+    def get_token_user_response(self, email_data, token_data, validated_data):
+        if email_data['access_token_exist']:
+            if email_data['email_exist']:
+                token_data['email'] = email_data['user'].email
+                token_data['email_verified'] = False
+                if email_data['user_email_object_exist']:
+                    token_data['email_verified'] = email_data[
+                        'useremail'].verified
+                else:
+                    useremail = UserEmail.objects.create(
+                        user=email_data['user'],
+                        email=email_data['user'].email,
+                        primary=True
+                    )
+                    if validated_data.get('email_validation') != 'none':
+                        task_send_validation_email.delay(
+                            email_data['user'].email,
+                            validated_data['initiator_use_ssl'],
+                            validated_data['initiator_site'],
+                            validated_data['initiator_email']
+                        )
+            token_data['access_token_exist'] = email_data['access_token_exist']
+            token_data['email_exist'] = email_data['email_exist']
+            return Response(token_data)
+        return Response(
+            {'access_token_exist': email_data['access_token_exist']})
+
+    def post(self, request, *args, **kwargs):
+        serializer = ConvertTokenSerializer(data=request.data)
+        if serializer.is_valid():
+            request._request.POST = request._request.POST.copy()
+            for key, value in request.data.items():
+                request._request.POST[key] = value
+            url, headers, body, status = self.create_token_response(
+                request._request)
+            if status == 200:
+                email_data = get_token_user_email_data(
+                    json.loads(body)['access_token']
+                )
+                return self.get_token_user_response(
+                    email_data, json.loads(body), serializer.validated_data)
+            return Response(json.loads(body), status=status)
+        return Response(serializer.errors, status=400)
+
+
+class AddEmailView(views.APIView):
+    """
+    TODO: Add documentation
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        serializer = AddEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            AccessToken = get_access_token_model()
+            user = AccessToken.objects.get(
+                token=serializer.validated_data.get('access_token')).user
+            useremail = UserEmail.objects.create(
+                user=user,
+                email=serializer.validated_data.get('email'),
+                primary=True
+            )
+            if serializer.validated_data.get('email_validation') != 'none':
+                task_send_validation_email.delay(
+                    serializer.validated_data['email'],
+                    serializer.validated_data['initiator_use_ssl'],
+                    serializer.validated_data['initiator_site'],
+                    serializer.validated_data['initiator_email']
+                )
+            return Response({
+                'user': user.username,
+                'email': useremail.email
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

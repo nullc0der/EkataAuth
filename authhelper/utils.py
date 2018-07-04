@@ -1,6 +1,9 @@
+from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
 from django.template import loader, Context
+
+from oauth2_provider.models import get_access_token_model
 
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
@@ -54,3 +57,27 @@ def send_password_reset_email(
         user=useremail.user,
         token=token
     )
+
+
+def get_token_user_email_data(access_token):
+    AccessToken = get_access_token_model()
+    try:
+        data = {}
+        user = AccessToken.objects.get(token=access_token).user
+        data['user'] = user
+        data['access_token_exist'] = True
+        if user.email == '':
+            data['email_exist'] = False
+        else:
+            data['email_exist'] = True
+            if len(user.emails.all()):
+                primary_email = user.emails.get(primary=True)
+                data['user_email_object_exist'] = True
+                data['useremail'] = primary_email
+            else:
+                data['user_email_object_exist'] = False
+        return data
+    except AccessToken.DoesNotExist:
+        return {
+            'access_token_exist': False
+        }
