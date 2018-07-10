@@ -6,16 +6,18 @@ from django.contrib.auth.models import User
 
 from rest_framework import views, status
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from oauth2_provider.contrib.rest_framework import (
     OAuth2Authentication,
     TokenHasReadWriteScope
 )
-from rest_framework.permissions import AllowAny
 from oauth2_provider.models import get_access_token_model
 from oauth2_provider.views import TokenView
 from oauth2_provider.settings import oauth2_settings
 from oauth2_provider.views.mixins import OAuthLibMixin
 from oauth2_provider.settings import oauth2_settings
+
 from rest_framework_social_oauth2.oauth2_backends import KeepRequestCore
 from rest_framework_social_oauth2.oauth2_endpoints import SocialTokenServer
 
@@ -29,7 +31,11 @@ from authhelper.serializers import (
     ConvertTokenSerializer,
     AddEmailSerializer
 )
-from authhelper.utils import get_token_user_email_data
+from authhelper.utils import (
+    get_token_user_email_data,
+    get_twitter_request_token,
+    get_twitter_user_auth_token
+)
 from authhelper.tasks import (
     task_send_validation_email, task_send_password_reset_email)
 
@@ -272,3 +278,45 @@ class AddEmailView(views.APIView):
                 'email': useremail.email
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetTwitterRequestToken(views.APIView):
+    """
+    TODO: Add Documentation
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        res = get_twitter_request_token(request.data['callback_uri'])
+        if res.status_code == 200:
+            data = {}
+            for d in res.content.decode('utf-8').split('&'):
+                key, val = d.split('=')
+                data[key] = val
+            return Response(data)
+        return Response(
+            {'error': 'Server error'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GetTwitterUserToken(views.APIView):
+    """
+    TODO: Add Documentation
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        res = get_twitter_user_auth_token(
+            request.data['oauth_token'], request.data['oauth_verifier'])
+        if res.status_code == 200:
+            data = {}
+            for d in res.content.decode('utf-8').split('&'):
+                key, val = d.split('=')
+                data[key] = val
+            return Response(data)
+        return Response(
+            {'error': 'Server error'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
