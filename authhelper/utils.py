@@ -1,7 +1,11 @@
+import requests
+from requests_oauthlib import OAuth1
+
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
 from django.template import loader, Context
+from django.conf import settings
 
 from oauth2_provider.models import get_access_token_model
 
@@ -81,3 +85,31 @@ def get_token_user_email_data(access_token):
         return {
             'access_token_exist': False
         }
+
+
+def get_twitter_request_token(callback_uri):
+    auth = OAuth1(
+        callback_uri=callback_uri,
+        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
+        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET
+    )
+    res = requests.post(
+        'https://api.twitter.com/oauth/request_token', auth=auth)
+    return res
+
+
+def get_twitter_user_auth_token(oauth_token, oauth_verifier):
+    auth = OAuth1(
+        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
+        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET,
+        resource_owner_key=oauth_token
+    )
+    data = {
+        'oauth_verifier': oauth_verifier
+    }
+    res = requests.post(
+        'https://api.twitter.com/oauth/access_token?oauth_verifier',
+        data=data,
+        auth=auth
+    )
+    return res
