@@ -1,6 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 
-from celery import shared_task
+from celery import shared_task, task
+
+from django.core.management import call_command
 
 from authhelper.utils import send_validation_email, send_password_reset_email
 
@@ -17,3 +19,8 @@ def task_send_password_reset_email(
         email_id, initiator_use_ssl, initiator_site, initiator_email):
     return send_password_reset_email(
         email_id, initiator_use_ssl, initiator_site, initiator_email)
+
+
+@task
+def clear_expired_access_tokens():
+    call_command('cleartokens')

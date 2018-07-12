@@ -45,8 +45,7 @@ from authhelper.tasks import (
 
 class LoginUserView(views.APIView):
     """
-    TODO: Add documentation
-    This API needs some refactoring and logic change!
+    This view will be used for user login
     """
 
     def post(self, request, format=None):
@@ -67,7 +66,6 @@ class LoginUserView(views.APIView):
 class RegisterUserView(views.APIView):
     """
     This view will be used for registering a user
-    TODO: Add documentation
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -102,7 +100,6 @@ class RegisterUserView(views.APIView):
 class ValidateEmailView(views.APIView):
     """
     This view will be used for validating an email
-    TODO: Add documentation
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -128,7 +125,6 @@ class CheckEmailVerifiedView(views.APIView):
     """
     This view will be used to check wheather an email
     id is verified
-    TODO: Add documentation
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -153,7 +149,6 @@ class CheckEmailVerifiedView(views.APIView):
 class InitiateForgotPasswordView(views.APIView):
     """
     This view will initiate the forgot password flow
-    TODO: Add documentation
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -176,7 +171,6 @@ class InitiateForgotPasswordView(views.APIView):
 class ForgotPasswordView(views.APIView):
     """
     This view reset an users password
-    TODO: Add documentation
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -198,6 +192,11 @@ class ForgotPasswordView(views.APIView):
 
 
 class ConvertTokenView(OAuthLibMixin, views.APIView):
+    """
+    This view will be used to login and register an user
+    using social sites
+    """
+
     server_class = SocialTokenServer
     validator_class = oauth2_settings.OAUTH2_VALIDATOR_CLASS
     oauthlib_backend_class = KeepRequestCore
@@ -250,7 +249,7 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
 
 class AddEmailView(views.APIView):
     """
-    TODO: Add documentation
+    This view will be used for adding email for an user
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -282,7 +281,7 @@ class AddEmailView(views.APIView):
 
 class GetTwitterRequestToken(views.APIView):
     """
-    TODO: Add Documentation
+    This view will be used for getting a request token from twitter
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
@@ -302,7 +301,7 @@ class GetTwitterRequestToken(views.APIView):
 
 class GetTwitterUserToken(views.APIView):
     """
-    TODO: Add Documentation
+    This view will be used to get user access token and secret from twitter
     """
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )

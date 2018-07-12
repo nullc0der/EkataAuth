@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 from django.core.exceptions import ImproperlyConfigured
 
+from celery.schedules import crontab
+
 
 def get_env_var(name):
     try:
@@ -114,6 +116,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Authentication
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookAppOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.google.GooglePlusAuth',
+    'social_core.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -148,6 +160,14 @@ REST_FRAMEWORK = {
 
 # CELERY
 CELERY_BROKER_URL = 'redis://' + get_env_var('REDIS_HOST') + ':6379/0'
+CELERY_RESULT_BACKEND = 'redis://' + get_env_var('REDIS_HOST') + ':6379/0'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'clear-expired-access-tokens': {
+        'task': 'authhelper.tasks.clear_expired_access_tokens',
+        'schedule': crontab(minute=0, hour=0)
+    }
+}
 
 # EMAIL_SERVER
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -172,16 +192,6 @@ OAUTH2_PROVIDER = {
     },
     'DEFAULT_SCOPES': ['read', 'write', 'ekata-core']
 }
-
-
-# Authentication
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    'social_core.backends.google.GooglePlusAuth',
-    'social_core.backends.twitter.TwitterOAuth',
-    'django.contrib.auth.backends.ModelBackend',
-)
 
 # Social Auth
 SOCIAL_AUTH_PIPELINE = (
