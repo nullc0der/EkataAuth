@@ -40,7 +40,16 @@ from authhelper.tasks import (
     task_send_validation_email, task_send_password_reset_email)
 
 
-# Create your views here.
+SPECIAL_SCOPES = ['baza-beta', 'ekata-beta']
+
+
+def user_has_access(user, asked_scopes):
+    for scope in asked_scopes:
+        if scope in SPECIAL_SCOPES:
+            user_special_scopes = user.userprofile.get_special_scopes()
+            if scope not in user_special_scopes:
+                return False
+    return True
 
 
 class LoginUserView(views.APIView):
@@ -52,14 +61,24 @@ class LoginUserView(views.APIView):
         response = TokenView.as_view()(request._request)
         response_data = json.loads(response.content)
         if response_data.get('access_token'):
-            response_data['email_verified'] = False
-            token_user = get_access_token_model().objects.get(
-                token=response_data.get('access_token')
-            ).user
-            email = token_user.emails.filter(primary=True)
-            if len(email):
-                response_data['email_verified'] = email[0].verified
-                response_data['email'] = email[0].email
+            AccessToken = get_access_token_model()
+            user = AccessToken.objects.get(
+                token=response_data.get('access_token')).user
+            if user_has_access(user, request.data.getlist('scope')):
+                response_data['email_verified'] = False
+                token_user = get_access_token_model().objects.get(
+                    token=response_data.get('access_token')
+                ).user
+                email = token_user.emails.filter(primary=True)
+                if len(email):
+                    response_data['email_verified'] = email[0].verified
+                    response_data['email'] = email[0].email
+            else:
+                return Response(
+                    {'error_description':
+                        'You don\'t have access to this site'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
         return Response(response_data, response.status_code)
 
 
@@ -235,16 +254,27 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
             request._request.POST = request._request.POST.copy()
             for key, value in request.data.items():
                 request._request.POST[key] = value
-            url, headers, body, status = self.create_token_response(
+            url, headers, body, res_status = self.create_token_response(
                 request._request)
-            if status == 200:
-                email_data = get_token_user_email_data(
-                    json.loads(body)['access_token']
-                )
-                return self.get_token_user_response(
-                    email_data, json.loads(body), serializer.validated_data)
-            return Response(json.loads(body), status=status)
-        return Response(serializer.errors, status=400)
+            if res_status == 200:
+                access_token = json.loads(body).get('access_token', None)
+                AccessToken = get_access_token_model()
+                user = AccessToken.objects.get(token=access_token).user
+                if access_token and user_has_access(
+                        user, request.data.getlist('scope')):
+                    email_data = get_token_user_email_data(access_token)
+                    return self.get_token_user_response(
+                        email_data, json.loads(body),
+                        serializer.validated_data)
+                else:
+                    return Response(
+                        {'error_description':
+                         'You don\'t have access to this site'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            return Response(json.loads(body), status=res_status)
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddEmailView(views.APIView):
@@ -319,3 +349,42 @@ class GetTwitterUserToken(views.APIView):
             {'error': 'Server error'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+class UpdateSpecialUserScope(views.APIView):
+    """
+    This view will be used to add or remove special scopes from
+    an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def add_special_scope(self, scope, user):
+        userprofile = user.userprofile
+        if scope not in userprofile.get_special_scopes():
+            user_special_scopes = userprofile.get_special_scopes()
+            user_special_scopes.append(scope.strip())
+            userprofile.special_scopes = ','.join(user_special_scopes)
+            userprofile.save()
+
+    def remove_special_scope(self, scope, user):
+        userprofile = user.userprofile
+        if scope in userprofile.get_special_scopes():
+            user_special_scopes = userprofile.get_special_scopes()
+            user_special_scopes.remove(scope.strip())
+            userprofile.special_scopes = ','.join(user_special_scopes)
+            userprofile.save()
+
+    def post(self, request, format=None):
+        update_type = request.data.get('update_type')
+        if update_type == 'add':
+            self.add_special_scope(
+                request.data.get('scope'),
+                User.objects.get(username=request.data.get('username'))
+            )
+        if update_type == 'remove':
+            self.remove_special_scope(
+                request.data.get('scope'),
+                User.objects.get(username=request.data.get('username'))
+            )
+        return Response()

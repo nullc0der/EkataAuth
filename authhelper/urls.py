@@ -13,5 +13,6 @@ urlpatterns = [
     path('converttoken/', views.ConvertTokenView.as_view()),
     path('addemail/', views.AddEmailView.as_view()),
     path('twitter/getrequesttoken/', views.GetTwitterRequestToken.as_view()),
-    path('twitter/getusertoken/', views.GetTwitterUserToken.as_view())
+    path('twitter/getusertoken/', views.GetTwitterUserToken.as_view()),
+    path('updateuserscope/', views.UpdateSpecialUserScope.as_view())
 ]

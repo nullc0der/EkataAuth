@@ -34,9 +34,29 @@ class ResetPasswordToken(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
 
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # Comma seprated string if multiple
+    special_scopes = models.CharField(
+        default='', max_length=400,
+        help_text='If multiple scope it must separated by comma')
+
+    def get_special_scopes(self):
+        return self.special_scopes.split(',')
+
+    def __str__(self):
+        return self.user.username
+
+
 @receiver(post_save, sender=UserEmail)
 def update_user_email(sender, **kwargs):
     useremail = kwargs['instance']
     if useremail.verified and useremail.primary:
         useremail.user.email = useremail.email
         useremail.user.save()
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
