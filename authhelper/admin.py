@@ -6,6 +6,7 @@ from authhelper.models import UserEmail, UserEmailValidation, UserProfile
 
 # Register your models here.
 
+
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
