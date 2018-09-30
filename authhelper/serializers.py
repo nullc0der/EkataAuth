@@ -112,6 +112,7 @@ class AddEmailSerializer(serializers.Serializer):
     initiator_site = serializers.CharField()
     initiator_use_ssl = serializers.BooleanField()
     initiator_email = serializers.EmailField()
+    from_social = serializers.BooleanField()
 
     def validate_access_token(self, value):
         AccessToken = get_access_token_model()
@@ -133,3 +134,9 @@ class AddEmailSerializer(serializers.Serializer):
             )
         except UserEmail.DoesNotExist:
             return value
+
+
+class UserEmailSerilaizer(serializers.ModelSerializer):
+    class Meta:
+        model = UserEmail
+        fields = ('id', 'email', 'primary', 'verified')

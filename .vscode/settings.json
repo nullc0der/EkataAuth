@@ -1,7 +1,7 @@
 {
     "python.linting.pylintEnabled": false,
-    "python.linting.pep8Enabled": true,
-    "python.pythonPath": "/home/prasanta/.virtualenvs/ekata-auth-SyCR8t0b/bin/python",
+    "python.linting.flake8Enabled": true,
+    "python.pythonPath": "/home/prasanta/.virtualenvs/ekataauth--JcAoYWL/bin/python",
     "editor.formatOnPaste": true,
     "files.exclude": {
         "**/.git": true,
