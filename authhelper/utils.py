@@ -1,10 +1,9 @@
 import requests
 from requests_oauthlib import OAuth1
 
-from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
-from django.template import loader, Context
+from django.template import loader
 from django.conf import settings
 
 from oauth2_provider.models import get_access_token_model
@@ -27,7 +26,7 @@ def send_validation_email(email_id,
         initiator_email,
         [useremail.email])
     msg.attach_alternative(email_template.render({
-        'username': useremail.user.username,
+        'username': useremail.email,
         'initiator_site': initiator_site,
         'validation_url': validation_url
     }), "text/html")

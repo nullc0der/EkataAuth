@@ -16,7 +16,6 @@ from oauth2_provider.models import get_access_token_model
 from oauth2_provider.views import TokenView
 from oauth2_provider.settings import oauth2_settings
 from oauth2_provider.views.mixins import OAuthLibMixin
-from oauth2_provider.settings import oauth2_settings
 
 from rest_framework_social_oauth2.oauth2_backends import KeepRequestCore
 from rest_framework_social_oauth2.oauth2_endpoints import SocialTokenServer
@@ -29,7 +28,8 @@ from authhelper.serializers import (
     ForgotPasswordInitiateSerializer,
     ForgotPasswordSerializer,
     ConvertTokenSerializer,
-    AddEmailSerializer
+    AddEmailSerializer,
+    UserEmailSerilaizer
 )
 from authhelper.utils import (
     get_token_user_email_data,
@@ -230,7 +230,7 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
                     token_data['email_verified'] = email_data[
                         'useremail'].verified
                 else:
-                    useremail = UserEmail.objects.create(
+                    UserEmail.objects.create(
                         user=email_data['user'],
                         email=email_data['user'].email,
                         primary=True
@@ -294,6 +294,7 @@ class AddEmailView(views.APIView):
                 user=user,
                 email=serializer.validated_data.get('email'),
                 primary=True
+                if serializer.validated_data.get('from_social') else False
             )
             if serializer.validated_data.get('email_validation') != 'none':
                 task_send_validation_email.delay(
@@ -302,10 +303,7 @@ class AddEmailView(views.APIView):
                     serializer.validated_data['initiator_site'],
                     serializer.validated_data['initiator_email']
                 )
-            return Response({
-                'user': user.username,
-                'email': useremail.email
-            })
+            return Response(UserEmailSerilaizer(useremail).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -388,3 +386,67 @@ class UpdateSpecialUserScope(views.APIView):
                 User.objects.get(username=request.data.get('username'))
             )
         return Response()
+
+
+class GetUserEmailsView(views.APIView):
+    """
+    This view will be used for getting the list of emails of an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def get(self, request, format=None):
+        AccessToken = get_access_token_model()
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        emails = user.emails.all()
+        serializer = UserEmailSerilaizer(emails, many=True)
+        return Response(serializer.data)
+
+
+class DeleteUserEmailView(views.APIView):
+    """
+    This view will be used to delete an users email
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        AccessToken = get_access_token_model()
+        email = UserEmail.objects.get(id=request.data['email_id'])
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        if user == email.user and not email.primary:
+            email.delete()
+            return Response(request.data['email_id'])
+        return Response(
+            {"error": "You can't delete this email id"},
+            status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateUserEmailView(views.APIView):
+    """
+    This view will be used to set primary email of an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        AccessToken = get_access_token_model()
+        email = UserEmail.objects.get(id=request.data['email_id'])
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        if user == email.user:
+            if email.verified:
+                for e in user.emails.all():
+                    e.primary = False
+                    e.save()
+                email.primary = True
+                email.save()
+                return Response(request.data['email_id'])
+            return Response({
+                'error': "You can't set primary until email is verified"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "You can't update this email id"},
+            status=status.HTTP_400_BAD_REQUEST)
