@@ -3,6 +3,7 @@
     "python.linting.flake8Enabled": true,
     "python.pythonPath": "/home/prasanta/.virtualenvs/ekataauth--JcAoYWL/bin/python",
     "editor.formatOnPaste": true,
+    "files.insertFinalNewline": true,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,

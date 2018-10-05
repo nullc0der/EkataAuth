@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from oauth2_provider.models import get_access_token_model
+from social_django.models import UserSocialAuth
 
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
@@ -140,3 +141,9 @@ class UserEmailSerilaizer(serializers.ModelSerializer):
     class Meta:
         model = UserEmail
         fields = ('id', 'email', 'primary', 'verified')
+
+
+class UserSocialAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSocialAuth
+        fields = ('id', 'provider')

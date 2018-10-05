@@ -20,6 +20,11 @@ from oauth2_provider.views.mixins import OAuthLibMixin
 from rest_framework_social_oauth2.oauth2_backends import KeepRequestCore
 from rest_framework_social_oauth2.oauth2_endpoints import SocialTokenServer
 
+from social_core.backends.oauth import BaseOAuth1, BaseOAuth2
+from social_core.exceptions import (
+    AuthAlreadyAssociated, NotAllowedToDisconnect)
+from social_django.utils import load_backend, load_strategy
+
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
 from authhelper.serializers import (
@@ -29,7 +34,8 @@ from authhelper.serializers import (
     ForgotPasswordSerializer,
     ConvertTokenSerializer,
     AddEmailSerializer,
-    UserEmailSerilaizer
+    UserEmailSerilaizer,
+    UserSocialAuthSerializer
 )
 from authhelper.utils import (
     get_token_user_email_data,
@@ -450,3 +456,92 @@ class UpdateUserEmailView(views.APIView):
         return Response(
             {"error": "You can't update this email id"},
             status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUserSocialAuths(views.APIView):
+    """
+    This view will be used to get all social account linked to
+    an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def get(self, request, format=None):
+        AccessToken = get_access_token_model()
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        social_auths = user.social_auth.all()
+        serializer = UserSocialAuthSerializer(
+            social_auths, many=True)
+        return Response(serializer.data)
+
+
+class ConnectSocialAuth(views.APIView):
+    """
+    This view will be used to link a social account to an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        provider = request.data['provider']
+        AccessToken = get_access_token_model()
+        authed_user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        strategy = load_strategy(request._request)
+        backend = load_backend(
+            strategy=strategy, name=provider, redirect_uri=None)
+
+        if isinstance(backend, BaseOAuth1):
+            token = {
+                'oauth_token': request.data['oauth_token'],
+                'oauth_token_secret': request.data['oauth_token_secret'],
+            }
+        if isinstance(backend, BaseOAuth2):
+            token = request.data['provider_access_token']
+
+        try:
+            user = backend.do_auth(token, user=authed_user)
+            social_auths = user.social_auth.all()
+            serializer = UserSocialAuthSerializer(
+                social_auths, many=True)
+            return Response(serializer.data)
+        except AuthAlreadyAssociated:
+            return Response(
+                {"error": "This social account is"
+                    " associated with another account"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class DisconnectSocialAuth(views.APIView):
+    """
+    This view will be used to disconnect a social account from an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        provider = request.data['provider']
+        association_id = request.data['association_id']
+        AccessToken = get_access_token_model()
+        authed_user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        strategy = load_strategy(request._request)
+        backend = load_backend(
+            strategy=strategy, name=provider, redirect_uri=None)
+        try:
+            backend.disconnect(
+                user=authed_user,
+                name=provider,
+                association_id=association_id
+            )
+            social_auths = authed_user.social_auth.all()
+            serializer = UserSocialAuthSerializer(
+                social_auths, many=True)
+            return Response(serializer.data)
+        except NotAllowedToDisconnect:
+            return Response({
+                "error": "You can't disconnect this social account"
+                " because this is your only method to login"
+            }, status=status.HTTP_400_BAD_REQUEST)
