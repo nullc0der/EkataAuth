@@ -17,5 +17,8 @@ urlpatterns = [
     path('updateemail/', views.UpdateUserEmailView.as_view()),
     path('twitter/getrequesttoken/', views.GetTwitterRequestToken.as_view()),
     path('twitter/getusertoken/', views.GetTwitterUserToken.as_view()),
-    path('updateuserscope/', views.UpdateSpecialUserScope.as_view())
+    path('updateuserscope/', views.UpdateSpecialUserScope.as_view()),
+    path('getsocialauths/', views.GetUserSocialAuths.as_view()),
+    path('connectsocialauth/', views.ConnectSocialAuth.as_view()),
+    path('disconnectsocialauth/', views.DisconnectSocialAuth.as_view())
 ]
