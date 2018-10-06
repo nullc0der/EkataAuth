@@ -35,7 +35,8 @@ from authhelper.serializers import (
     ConvertTokenSerializer,
     AddEmailSerializer,
     UserEmailSerilaizer,
-    UserSocialAuthSerializer
+    UserSocialAuthSerializer,
+    UserPasswordSerializer
 )
 from authhelper.utils import (
     get_token_user_email_data,
@@ -545,3 +546,27 @@ class DisconnectSocialAuth(views.APIView):
                 "error": "You can't disconnect this social account"
                 " because this is your only method to login"
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SetUserPassword(views.APIView):
+    """
+    This view will be used to set new password for an user
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        AccessToken = get_access_token_model()
+        authed_user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        serializer = UserPasswordSerializer(
+            data=request.data, context={'user': authed_user}
+        )
+        if serializer.is_valid():
+            authed_user.set_password(
+                serializer.validated_data['new_password_1'])
+            authed_user.save()
+            return Response({
+                'status': 'success'
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
