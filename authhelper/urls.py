@@ -20,5 +20,6 @@ urlpatterns = [
     path('updateuserscope/', views.UpdateSpecialUserScope.as_view()),
     path('getsocialauths/', views.GetUserSocialAuths.as_view()),
     path('connectsocialauth/', views.ConnectSocialAuth.as_view()),
-    path('disconnectsocialauth/', views.DisconnectSocialAuth.as_view())
+    path('disconnectsocialauth/', views.DisconnectSocialAuth.as_view()),
+    path('setpassword/', views.SetUserPassword.as_view())
 ]

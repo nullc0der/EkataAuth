@@ -147,3 +147,26 @@ class UserSocialAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSocialAuth
         fields = ('id', 'provider')
+
+
+class UserPasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(allow_blank=True)
+    new_password_1 = serializers.CharField()
+    new_password_2 = serializers.CharField()
+
+    def validate_current_password(self, value):
+        user = self.context['user']
+        if not user.has_usable_password():
+            return value
+        if user.check_password(value):
+            return value
+        raise serializers.ValidationError(
+            "Password not matching with current password"
+        )
+
+    def validate(self, data):
+        if data['new_password_1'] != data['new_password_2']:
+            raise serializers.ValidationError(
+                'New passwords should be same'
+            )
+        return data
