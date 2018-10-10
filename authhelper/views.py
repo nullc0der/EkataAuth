@@ -73,10 +73,8 @@ class LoginUserView(views.APIView):
                 token=response_data.get('access_token')).user
             if user_has_access(user, request.data.getlist('scope')):
                 response_data['email_verified'] = False
-                token_user = get_access_token_model().objects.get(
-                    token=response_data.get('access_token')
-                ).user
-                email = token_user.emails.filter(primary=True)
+                response_data['username'] = user.username
+                email = user.emails.filter(primary=True)
                 if len(email):
                     response_data['email_verified'] = email[0].verified
                     response_data['email'] = email[0].email
@@ -228,7 +226,8 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
     oauthlib_backend_class = KeepRequestCore
     permission_classes = (AllowAny, )
 
-    def get_token_user_response(self, email_data, token_data, validated_data):
+    def get_token_user_response(
+            self, email_data, token_data, validated_data, user):
         if email_data['access_token_exist']:
             if email_data['email_exist']:
                 token_data['email'] = email_data['user'].email
@@ -251,6 +250,7 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
                         )
             token_data['access_token_exist'] = email_data['access_token_exist']
             token_data['email_exist'] = email_data['email_exist']
+            token_data['username'] = user.username
             return Response(token_data)
         return Response(
             {'access_token_exist': email_data['access_token_exist']})
@@ -272,7 +272,7 @@ class ConvertTokenView(OAuthLibMixin, views.APIView):
                     email_data = get_token_user_email_data(access_token)
                     return self.get_token_user_response(
                         email_data, json.loads(body),
-                        serializer.validated_data)
+                        serializer.validated_data, user)
                 else:
                     return Response(
                         {'error_description':
