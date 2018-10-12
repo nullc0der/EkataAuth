@@ -21,5 +21,6 @@ urlpatterns = [
     path('getsocialauths/', views.GetUserSocialAuths.as_view()),
     path('connectsocialauth/', views.ConnectSocialAuth.as_view()),
     path('disconnectsocialauth/', views.DisconnectSocialAuth.as_view()),
-    path('setpassword/', views.SetUserPassword.as_view())
+    path('setpassword/', views.SetUserPassword.as_view()),
+    path('checkpassword/', views.CheckPasswordView.as_view())
 ]
