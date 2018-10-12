@@ -570,3 +570,27 @@ class SetUserPassword(views.APIView):
                 'status': 'success'
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckPasswordView(views.APIView):
+    """
+    This api checks wheather inputed password matches with users
+    password
+    """
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        AccessToken = get_access_token_model()
+        authed_user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        password_valid = authed_user.check_password(
+            request.data['password']
+        )
+        if password_valid:
+            return Response({
+                'password_valid': password_valid
+            })
+        return Response({
+            'password_valid': password_valid
+        }, status=status.HTTP_400_BAD_REQUEST)
