@@ -36,7 +36,9 @@ from authhelper.serializers import (
     AddEmailSerializer,
     UserEmailSerilaizer,
     UserSocialAuthSerializer,
-    UserPasswordSerializer
+    UserPasswordSerializer,
+    ResendValidationEmailSerializer,
+    UpdateEmailSerializer
 )
 from authhelper.utils import (
     get_token_user_email_data,
@@ -301,7 +303,9 @@ class AddEmailView(views.APIView):
                 user=user,
                 email=serializer.validated_data.get('email'),
                 primary=True
-                if serializer.validated_data.get('from_social') else False
+                if serializer.validated_data.get('from_social') else False,
+                email_type=serializer.validated_data.get(
+                    'email_type', 'office')
             )
             if serializer.validated_data.get('email_validation') != 'none':
                 task_send_validation_email.delay(
@@ -443,20 +447,12 @@ class UpdateUserEmailView(views.APIView):
         email = UserEmail.objects.get(id=request.data['email_id'])
         user = AccessToken.objects.get(
             token=request.data['access_token']).user
-        if user == email.user:
-            if email.verified:
-                for e in user.emails.all():
-                    e.primary = False
-                    e.save()
-                email.primary = True
-                email.save()
-                return Response(request.data['email_id'])
-            return Response({
-                'error': "You can't set primary until email is verified"
-            }, status=status.HTTP_400_BAD_REQUEST)
-        return Response(
-            {"error": "You can't update this email id"},
-            status=status.HTTP_400_BAD_REQUEST)
+        serializer = UpdateEmailSerializer(
+            email, data=request.data, context={'user': user}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetUserSocialAuths(views.APIView):
@@ -594,3 +590,25 @@ class CheckPasswordView(views.APIView):
         return Response({
             'password_valid': password_valid
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResendValidationEmailView(views.APIView):
+    """
+    This api will be used to resend the validation email for specified
+    email id
+    """
+
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        serializer = ResendValidationEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            task_send_validation_email.delay(
+                serializer.validated_data['email'],
+                serializer.validated_data['initiator_use_ssl'],
+                serializer.validated_data['initiator_site'],
+                serializer.validated_data['initiator_email']
+            )
+            return Response([])
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
