@@ -118,3 +118,21 @@ def get_twitter_user_auth_token(oauth_token, oauth_verifier):
         auth=auth
     )
     return res
+
+
+def send_added_email_notification(username):
+    url = settings.INTERNAL_WEBHOOK_URL + '/profile/webhook/addedemail/'
+    data = {
+        'username': username,
+        'key': settings.INTERNAL_WEBHOOK_KEY
+    }
+    requests.post(url, data=data)
+
+
+def send_added_social_notification(username):
+    url = settings.INTERNAL_WEBHOOK_URL + '/profile/webhook/addedsocial/'
+    data = {
+        'username': username,
+        'key': settings.INTERNAL_WEBHOOK_KEY
+    }
+    requests.post(url, data=data)

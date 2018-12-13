@@ -138,7 +138,7 @@ class AddEmailSerializer(serializers.Serializer):
                 email=value
             )
             raise serializers.ValidationError(
-                'This email is associated with another account'
+                'This email is used'
             )
         except UserEmail.DoesNotExist:
             return value

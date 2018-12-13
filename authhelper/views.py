@@ -43,7 +43,9 @@ from authhelper.serializers import (
 from authhelper.utils import (
     get_token_user_email_data,
     get_twitter_request_token,
-    get_twitter_user_auth_token
+    get_twitter_user_auth_token,
+    send_added_email_notification,
+    send_added_social_notification
 )
 from authhelper.tasks import (
     task_send_validation_email, task_send_password_reset_email)
@@ -138,6 +140,8 @@ class ValidateEmailView(views.APIView):
             )
             useremailvalidation.useremail.verified = True
             useremailvalidation.useremail.save()
+            send_added_email_notification(
+                useremailvalidation.useremail.user.username)
             useremailvalidation.delete()
             return Response({
                 'status': 'success',
@@ -502,6 +506,8 @@ class ConnectSocialAuth(views.APIView):
             social_auths = user.social_auth.all()
             serializer = UserSocialAuthSerializer(
                 social_auths, many=True)
+            if social_auths:
+                send_added_social_notification(authed_user.username)
             return Response(serializer.data)
         except AuthAlreadyAssociated:
             return Response(
