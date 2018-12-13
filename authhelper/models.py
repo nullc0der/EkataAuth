@@ -7,11 +7,28 @@ from django.dispatch import receiver
 
 
 class UserEmail(models.Model):
+    EMAIL_TYPE_CHOICES = (
+        ('office', 'Office'),
+        ('home', 'Home'),
+        ('mobile', 'Mobile'),
+        ('emergency', 'Emergency')
+    )
     user = models.ForeignKey(
         User, related_name='emails', on_delete=models.CASCADE)
     email = models.EmailField()
     primary = models.BooleanField(default=False)
     verified = models.BooleanField(default=False)
+    email_type = models.CharField(
+        max_length=10, default='office', choices=EMAIL_TYPE_CHOICES)
+
+    def save(self, *args, **kwargs):
+        if self.primary:
+            qs = type(self).objects.filter(primary=True)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            qs.update(primary=False)
+
+        super(UserEmail, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.user.username

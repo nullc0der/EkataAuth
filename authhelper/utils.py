@@ -21,7 +21,7 @@ def send_validation_email(email_id,
         initiator_site, validation_key, )
     email_template = loader.get_template('validateemail.html')
     msg = EmailMultiAlternatives(
-        'Validate your email to complete registration for %s' % initiator_site,
+        'Validate your email for %s' % initiator_site,
         'Go to this url to validate %s' % validation_url,
         initiator_email,
         [useremail.email])
@@ -31,10 +31,16 @@ def send_validation_email(email_id,
         'validation_url': validation_url
     }), "text/html")
     msg.send()
-    UserEmailValidation.objects.create(
-        useremail=useremail,
-        validation_key=validation_key
-    )
+    try:
+        useremailvalidation = UserEmailValidation.objects.get(
+            useremail=useremail)
+        useremailvalidation.validation_key = validation_key
+        useremailvalidation.save()
+    except UserEmailValidation.DoesNotExist:
+        UserEmailValidation.objects.create(
+            useremail=useremail,
+            validation_key=validation_key
+        )
 
 
 def send_password_reset_email(
@@ -112,3 +118,21 @@ def get_twitter_user_auth_token(oauth_token, oauth_verifier):
         auth=auth
     )
     return res
+
+
+def send_added_email_notification(username):
+    url = settings.INTERNAL_WEBHOOK_URL + '/profile/webhook/addedemail/'
+    data = {
+        'username': username,
+        'key': settings.INTERNAL_WEBHOOK_KEY
+    }
+    requests.post(url, data=data)
+
+
+def send_added_social_notification(username):
+    url = settings.INTERNAL_WEBHOOK_URL + '/profile/webhook/addedsocial/'
+    data = {
+        'username': username,
+        'key': settings.INTERNAL_WEBHOOK_KEY
+    }
+    requests.post(url, data=data)

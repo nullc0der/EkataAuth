@@ -108,7 +108,14 @@ class ConvertTokenSerializer(serializers.Serializer):
 
 
 class AddEmailSerializer(serializers.Serializer):
+    EMAIL_TYPE_CHOICES = (
+        ('office', 'Office'),
+        ('home', 'Home'),
+        ('mobile', 'Mobile'),
+        ('emergency', 'Emergency')
+    )
     email = serializers.EmailField()
+    email_type = serializers.ChoiceField(choices=EMAIL_TYPE_CHOICES)
     access_token = serializers.CharField()
     initiator_site = serializers.CharField()
     initiator_use_ssl = serializers.BooleanField()
@@ -131,16 +138,44 @@ class AddEmailSerializer(serializers.Serializer):
                 email=value
             )
             raise serializers.ValidationError(
-                'This email is associated with another account'
+                'This email is used'
             )
         except UserEmail.DoesNotExist:
             return value
 
 
+class UpdateEmailSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField()
+    verified = serializers.ReadOnlyField()
+
+    def validate(self, data):
+        if self.instance.user != self.context['user']:
+            raise serializers.ValidationError(
+                "You can't update this email id"
+            )
+        if 'primary' in data:
+            if data['primary'] and not self.instance.verified:
+                raise serializers.ValidationError(
+                    "You can't set primary until email is verified"
+                )
+        return data
+
+    class Meta:
+        model = UserEmail
+        fields = ('id', 'email', 'primary', 'email_type', 'verified')
+
+
+class ResendValidationEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    initiator_site = serializers.CharField()
+    initiator_use_ssl = serializers.BooleanField()
+    initiator_email = serializers.EmailField()
+
+
 class UserEmailSerilaizer(serializers.ModelSerializer):
     class Meta:
         model = UserEmail
-        fields = ('id', 'email', 'primary', 'verified')
+        fields = ('id', 'email', 'primary', 'verified', 'email_type')
 
 
 class UserSocialAuthSerializer(serializers.ModelSerializer):
