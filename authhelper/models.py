@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -23,7 +24,7 @@ class UserEmail(models.Model):
 
     def save(self, *args, **kwargs):
         if self.primary:
-            qs = type(self).objects.filter(primary=True)
+            qs = type(self).objects.filter(Q(primary=True) & Q(user=self.user))
             if self.pk:
                 qs = qs.exclude(pk=self.pk)
             qs.update(primary=False)
