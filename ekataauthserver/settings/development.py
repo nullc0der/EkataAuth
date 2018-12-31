@@ -22,3 +22,8 @@ DATABASES = {
 # CORS_ORIGIN_WHITELIST = [
 #     'localhost:5100'
 # ]
+
+MJML_BACKEND_MODE = 'tcpserver'
+MJML_TCPSERVERS = [
+    ('127.0.0.1', 28101)
+]

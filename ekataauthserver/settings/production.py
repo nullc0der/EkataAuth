@@ -91,3 +91,7 @@ LOGGING = {
         },
     },
 }
+MJML_BACKEND_MODE = 'tcpserver'
+MJML_TCPSERVERS = [
+    ('mjml', 28101)
+]
