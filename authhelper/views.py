@@ -618,3 +618,20 @@ class ResendValidationEmailView(views.APIView):
             )
             return Response([])
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckUserHasUsablePassword(views.APIView):
+    """
+    This api will be used to check if user has an usable password
+    """
+
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def post(self, request, format=None):
+        AccessToken = get_access_token_model()
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        return Response({
+            'has_usable_password': user.has_usable_password()
+        })
