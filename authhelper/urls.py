@@ -23,5 +23,6 @@ urlpatterns = [
     path('disconnectsocialauth/', views.DisconnectSocialAuth.as_view()),
     path('setpassword/', views.SetUserPassword.as_view()),
     path('checkpassword/', views.CheckPasswordView.as_view()),
-    path('resendvalidationemail/', views.ResendValidationEmailView.as_view())
+    path('resendvalidationemail/', views.ResendValidationEmailView.as_view()),
+    path('userhaspassword/', views.CheckUserHasUsablePassword.as_view())
 ]
