@@ -15,6 +15,7 @@ uwsgi = "*"
 raven = "*"
 "flake8" = "*"
 django-mjml = "*"
+tweepy = "*"
 
 [dev-packages]
 "pep8" = "*"
