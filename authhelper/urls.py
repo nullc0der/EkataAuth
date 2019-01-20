@@ -24,5 +24,7 @@ urlpatterns = [
     path('setpassword/', views.SetUserPassword.as_view()),
     path('checkpassword/', views.CheckPasswordView.as_view()),
     path('resendvalidationemail/', views.ResendValidationEmailView.as_view()),
-    path('userhaspassword/', views.CheckUserHasUsablePassword.as_view())
+    path('userhaspassword/', views.CheckUserHasUsablePassword.as_view()),
+    path('usersocialphoto/', views.UserSocialProfilePhoto.as_view()),
+    path('usersocialcredentials/', views.UserSocialCredentials.as_view())
 ]

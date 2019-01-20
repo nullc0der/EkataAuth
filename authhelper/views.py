@@ -1,8 +1,10 @@
 import json
+import tweepy
 
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from rest_framework import views, status
 from rest_framework.response import Response
@@ -635,3 +637,102 @@ class CheckUserHasUsablePassword(views.APIView):
         return Response({
             'has_usable_password': user.has_usable_password()
         })
+
+
+class UserSocialProfilePhoto(views.APIView):
+    """
+    This api will be used to download users social profile photo
+    """
+
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def get_full_size_twitter_image_url(self, url):
+        url_chunks = url.split('/')
+        filename = url_chunks[len(url_chunks) - 1]
+        name, filetype = filename.split('.')
+        full_size_filename = name.split('_')[0] + '.' + filetype
+        for i in range(2):
+            url_chunks.pop(0)
+        url_chunks.pop(len(url_chunks) - 1)
+        return 'https://' + '/'.join(url_chunks) + '/' + full_size_filename
+
+    def get_facebook_profile_photo(self, user):
+        user_facebook_social_auth = user.social_auth.get(
+            provider='facebook')
+        return "https://graph.facebook.com" +\
+            "/%s/picture?width=9999&height=9999"\
+            % user_facebook_social_auth.uid
+
+    def get_twitter_profile_photo(self, user):
+        user_twitter_social_auth = user.social_auth.get(
+            provider='twitter'
+        )
+        extra_data = user_twitter_social_auth.extra_data
+        auth = tweepy.OAuthHandler(
+            settings.SOCIAL_AUTH_TWITTER_KEY,
+            settings.SOCIAL_AUTH_TWITTER_SECRET)
+        auth.set_access_token(
+            extra_data["access_token"]["oauth_token"],
+            extra_data["access_token"]["oauth_token_secret"]
+        )
+        api = tweepy.API(auth)
+        me = api.me()
+        profile_image = me.profile_image_url_https
+        return self.get_full_size_twitter_image_url(profile_image)
+
+    def post(self, request, format=None):
+        provider = request.data['provider']
+        AccessToken = get_access_token_model()
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        if provider == 'twitter':
+            photo_url = self.get_twitter_profile_photo(user)
+        if provider == 'facebook':
+            photo_url = self.get_facebook_profile_photo(user)
+        return Response({
+            'photo_url': photo_url
+        })
+
+
+class UserSocialCredentials(views.APIView):
+    """
+    This api will be used for getting users social credentials
+    """
+
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
+    def get_user_facebook_credentials(self, user):
+        user_facebook_social_auth = user.social_auth.get(
+            provider='facebook')
+        extra_data = user_facebook_social_auth.extra_data
+        return {
+            'uid': user_facebook_social_auth.uid,
+            'access_token': extra_data['access_token']
+        }
+
+    def get_user_twitter_credentials(self, user):
+        user_twitter_social_auth = user.social_auth.get(
+            provider='twitter'
+        )
+        extra_data = user_twitter_social_auth.extra_data
+        return {
+            'uid': user_twitter_social_auth.uid,
+            'oauth_token': extra_data["access_token"]["oauth_token"],
+            'oauth_token_secret': extra_data[
+                "access_token"]["oauth_token_secret"],
+            'consumer_key': settings.SOCIAL_AUTH_TWITTER_KEY,
+            'consumer_secret': settings.SOCIAL_AUTH_TWITTER_SECRET
+        }
+
+    def post(self, request, format=None):
+        provider = request.data['provider']
+        AccessToken = get_access_token_model()
+        user = AccessToken.objects.get(
+            token=request.data['access_token']).user
+        if provider == 'facebook':
+            credentials = self.get_user_facebook_credentials(user)
+        if provider == 'twitter':
+            credentials = self.get_user_twitter_credentials(user)
+        return Response(credentials)
