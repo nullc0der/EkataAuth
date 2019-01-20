@@ -647,18 +647,28 @@ class UserSocialProfilePhoto(views.APIView):
     authentication_classes = (OAuth2Authentication, )
     permission_classes = (TokenHasReadWriteScope, )
 
+    def get_full_size_twitter_image_url(self, url):
+        url_chunks = url.split('/')
+        filename = url_chunks[len(url_chunks) - 1]
+        name, filetype = filename.split('.')
+        full_size_filename = name.split('_')[0] + '.' + filetype
+        for i in range(2):
+            url_chunks.pop(0)
+        url_chunks.pop(len(url_chunks) - 1)
+        return 'https://' + '/'.join(url_chunks) + '/' + full_size_filename
+
     def get_facebook_profile_photo(self, user):
-        user_facebook_social_auth = user.social_auths.get(
+        user_facebook_social_auth = user.social_auth.get(
             provider='facebook')
         return "https://graph.facebook.com" +\
             "/%s/picture?width=9999&height=9999"\
             % user_facebook_social_auth.uid
 
     def get_twitter_profile_photo(self, user):
-        user_twitter_social_auth = user.social_auths.get(
+        user_twitter_social_auth = user.social_auth.get(
             provider='twitter'
         )
-        extra_data = json.loads(user_twitter_social_auth.extra_data)
+        extra_data = user_twitter_social_auth.extra_data
         auth = tweepy.OAuthHandler(
             settings.SOCIAL_AUTH_TWITTER_KEY,
             settings.SOCIAL_AUTH_TWITTER_SECRET)
@@ -668,7 +678,8 @@ class UserSocialProfilePhoto(views.APIView):
         )
         api = tweepy.API(auth)
         me = api.me()
-        return me.profile_image_url_https
+        profile_image = me.profile_image_url_https
+        return self.get_full_size_twitter_image_url(profile_image)
 
     def post(self, request, format=None):
         provider = request.data['provider']
@@ -684,34 +695,6 @@ class UserSocialProfilePhoto(views.APIView):
         })
 
 
-class UserSocialScopes(views.APIView):
-    """
-    This API will be used to get users granted and rejected social
-    scopes
-    """
-
-    authentication_classes = (OAuth2Authentication, )
-    permission_classes = (TokenHasReadWriteScope, )
-
-    def get_users_facebook_scopes(self, user):
-        user_facebook_social_auth = user.social_auths.get(
-            provider='facebook')
-        extra_data = json.loads(user_facebook_social_auth.extra_data)
-        return {
-            "granted_scopes": extra_data["granted_scopes"],
-            "denied_scopes": extra_data["denied_scopes"]
-        }
-
-    def post(self, request, format=None):
-        provider = request.data['provider']
-        AccessToken = get_access_token_model()
-        user = AccessToken.objects.get(
-            token=request.data['access_token']).user
-        if provider == 'facebook':
-            scopes = self.get_users_facebook_scopes(user)
-        return Response(scopes)
-
-
 class UserSocialCredentials(views.APIView):
     """
     This api will be used for getting users social credentials
@@ -721,9 +704,9 @@ class UserSocialCredentials(views.APIView):
     permission_classes = (TokenHasReadWriteScope, )
 
     def get_user_facebook_credentials(self, user):
-        user_facebook_social_auth = user.social_auths.get(
+        user_facebook_social_auth = user.social_auth.get(
             provider='facebook')
-        extra_data = json.loads(user_facebook_social_auth.extra_data)
+        extra_data = user_facebook_social_auth.extra_data
         return {
             'uid': user_facebook_social_auth.uid,
             'access_token': extra_data['access_token']
@@ -733,7 +716,7 @@ class UserSocialCredentials(views.APIView):
         user_twitter_social_auth = user.social_auth.get(
             provider='twitter'
         )
-        extra_data = json.loads(user_twitter_social_auth.extra_data)
+        extra_data = user_twitter_social_auth.extra_data
         return {
             'uid': user_twitter_social_auth.uid,
             'oauth_token': extra_data["access_token"]["oauth_token"],
