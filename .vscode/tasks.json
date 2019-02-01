@@ -6,13 +6,13 @@
         {
             "label": "Run Auth Django Server",
             "type": "shell",
-            "command": "pipenv run python manage.py runserver 8001",
+            "command": "dotenv run poetry run python manage.py runserver 8001",
             "problemMatcher": []
         },
         {
             "label": "Run Auth Celery",
             "type": "shell",
-            "command": "pipenv run celery -A ekataauthserver worker -l info ",
+            "command": "dotenv run poetry run celery -A ekataauthserver worker -l info ",
             "problemMatcher": []
         },
         {

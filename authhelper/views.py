@@ -651,7 +651,9 @@ class UserSocialProfilePhoto(views.APIView):
         url_chunks = url.split('/')
         filename = url_chunks[len(url_chunks) - 1]
         name, filetype = filename.split('.')
-        full_size_filename = name.split('_')[0] + '.' + filetype
+        name_chunks = name.split('_')
+        name_chunks.pop(len(name_chunks) - 1)
+        full_size_filename = '_'.join(name_chunks) + '.' + filetype
         for i in range(2):
             url_chunks.pop(0)
         url_chunks.pop(len(url_chunks) - 1)
