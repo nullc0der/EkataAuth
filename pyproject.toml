@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ekataauth"
-version = "0.1.0"
+version = "0.3.8"
 description = "Authentication backend for ekata and its products"
 authors = ["Prasanta <prasantakakati1994@gmail.com>"]
 
