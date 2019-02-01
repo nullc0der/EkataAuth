@@ -6,17 +6,20 @@
         {
             "label": "Run Auth Django Server",
             "type": "shell",
-            "command": "pipenv run python manage.py runserver 8001"
+            "command": "dotenv run poetry run python manage.py runserver 8001",
+            "problemMatcher": []
         },
         {
             "label": "Run Auth Celery",
             "type": "shell",
-            "command": "pipenv run celery -A ekataauthserver worker -l info "
+            "command": "dotenv run poetry run celery -A ekataauthserver worker -l info ",
+            "problemMatcher": []
         },
         {
             "label": "Start mjml Server",
             "type": "shell",
-            "command": "NODE_PATH=~/.nvm/versions/node/v9.10.1/lib/node_modules/ node ~/.virtualenvs/ekataauth--JcAoYWL/lib/python3.6/site-packages/mjml/node/tcpserver.js --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop"
+            "command": "NODE_PATH=~/.nvm/versions/node/v9.10.1/lib/node_modules/ node ~/.virtualenvs/ekataauth--JcAoYWL/lib/python3.6/site-packages/mjml/node/tcpserver.js --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop",
+            "problemMatcher": []
         }
     ]
 }
