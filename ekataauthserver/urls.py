@@ -17,11 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-# TODO: Before production management URLs should be removed
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('authhelper/', include('authhelper.urls')),
-    # TODO: try to get rid of this
     path('ra/', include('rest_framework_social_oauth2.urls'))
 ]
