@@ -78,6 +78,5 @@ def update_user_email(sender, **kwargs):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(
-            user=instance,
-            special_scopes='baza-beta'
+            user=instance
         )
