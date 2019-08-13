@@ -413,9 +413,12 @@ class GetUserEmailsView(views.APIView):
     permission_classes = (TokenHasReadWriteScope, )
 
     def get(self, request, format=None):
-        AccessToken = get_access_token_model()
-        user = AccessToken.objects.get(
-            token=request.data['access_token']).user
+        try:
+            AccessToken = get_access_token_model()
+            user = AccessToken.objects.get(
+                token=request.data['access_token']).user
+        except AccessToken.DoesNotExist:
+            user = User.objects.get(username=request.data['access_token'])
         emails = user.emails.all()
         serializer = UserEmailSerilaizer(emails, many=True)
         return Response(serializer.data)
