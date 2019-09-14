@@ -18,7 +18,7 @@
         {
             "label": "Start mjml Server",
             "type": "shell",
-            "command": "NODE_PATH=~/.nvm/versions/node/v8.16.0/lib/node_modules/ node /home/prasanta/.cache/pypoetry/virtualenvs/baza-backend-py3.6/lib/python3.6/site-packages/mjml/node/tcpserver.js --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop",
+            "command": "NODE_PATH=~/.nvm/versions/node/v9.10.1/lib/node_modules/ node /home/prasanta/.cache/pypoetry/virtualenvs/baza-backend-py3.6/lib/python3.6/site-packages/mjml/node/tcpserver.js --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop",
             "problemMatcher": []
         }
     ]
