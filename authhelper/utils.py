@@ -92,21 +92,27 @@ def get_token_user_email_data(access_token):
         }
 
 
-def get_twitter_request_token(callback_uri):
+def get_twitter_request_token(initiator_site, callback_uri):
     auth = OAuth1(
         callback_uri=callback_uri,
-        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
-        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET
+        client_key=getattr(settings, 'SOCIAL_AUTH_TWITTER_' +
+                           settings.SOCIAL_KEY_SETTING_NAME[initiator_site]),
+        client_secret=getattr(
+            settings, 'SOCIAL_AUTH_TWITTER_'
+            + settings.SOCIAL_SECRET_SETTING_NAME[initiator_site])
     )
     res = requests.post(
         'https://api.twitter.com/oauth/request_token', auth=auth)
     return res
 
 
-def get_twitter_user_auth_token(oauth_token, oauth_verifier):
+def get_twitter_user_auth_token(initiator_site, oauth_token, oauth_verifier):
     auth = OAuth1(
-        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
-        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET,
+        client_key=getattr(settings, 'SOCIAL_AUTH_TWITTER_' +
+                           settings.SOCIAL_KEY_SETTING_NAME[initiator_site]),
+        client_secret=getattr(
+            settings, 'SOCIAL_AUTH_TWITTER_'
+            + settings.SOCIAL_SECRET_SETTING_NAME[initiator_site]),
         resource_owner_key=oauth_token
     )
     data = {
