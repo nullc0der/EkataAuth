@@ -17,6 +17,11 @@ from django.contrib import admin
 from django.urls import path, include
 
 
+admin.site.site_title = 'Ekata Auth Administration'
+admin.site.site_header = 'Ekata Auth Administration'
+admin.site.index_title = 'Ekata Auth Administration'
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
