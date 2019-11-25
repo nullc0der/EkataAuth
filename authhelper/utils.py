@@ -12,6 +12,13 @@ from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
 
 
+BASE_EMAIL_TEMPLATE = {
+    'ekata.social': 'base_email_template_ekata_social.html',
+    'baza.foundation': 'base_email_template_baza_foundation.html',
+    'localhost:5100': 'base_email_template_ekata_social.html'
+}
+
+
 def send_validation_email(email_id,
                           initiator_use_ssl, initiator_site, initiator_email):
     useremail = UserEmail.objects.get(email=email_id)
@@ -28,7 +35,8 @@ def send_validation_email(email_id,
     msg.attach_alternative(email_template.render({
         'username': useremail.email,
         'initiator_site': initiator_site,
-        'validation_url': validation_url
+        'validation_url': validation_url,
+        'base_template': BASE_EMAIL_TEMPLATE[initiator_site]
     }), "text/html")
     msg.send()
     try:
@@ -59,7 +67,8 @@ def send_password_reset_email(
         [useremail.email])
     msg.attach_alternative(email_template.render({
         'email': useremail.email,
-        'reset_link': reset_password_url
+        'reset_link': reset_password_url,
+        'base_template': BASE_EMAIL_TEMPLATE[initiator_site]
     }), "text/html")
     msg.send()
     ResetPasswordToken.objects.create(
@@ -92,21 +101,27 @@ def get_token_user_email_data(access_token):
         }
 
 
-def get_twitter_request_token(callback_uri):
+def get_twitter_request_token(initiator_site, callback_uri):
     auth = OAuth1(
         callback_uri=callback_uri,
-        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
-        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET
+        client_key=getattr(settings, 'SOCIAL_AUTH_TWITTER_' +
+                           settings.SOCIAL_KEY_SETTING_NAME[initiator_site]),
+        client_secret=getattr(
+            settings, 'SOCIAL_AUTH_TWITTER_'
+            + settings.SOCIAL_SECRET_SETTING_NAME[initiator_site])
     )
     res = requests.post(
         'https://api.twitter.com/oauth/request_token', auth=auth)
     return res
 
 
-def get_twitter_user_auth_token(oauth_token, oauth_verifier):
+def get_twitter_user_auth_token(initiator_site, oauth_token, oauth_verifier):
     auth = OAuth1(
-        client_key=settings.SOCIAL_AUTH_TWITTER_KEY,
-        client_secret=settings.SOCIAL_AUTH_TWITTER_SECRET,
+        client_key=getattr(settings, 'SOCIAL_AUTH_TWITTER_' +
+                           settings.SOCIAL_KEY_SETTING_NAME[initiator_site]),
+        client_secret=getattr(
+            settings, 'SOCIAL_AUTH_TWITTER_'
+            + settings.SOCIAL_SECRET_SETTING_NAME[initiator_site]),
         resource_owner_key=oauth_token
     )
     data = {

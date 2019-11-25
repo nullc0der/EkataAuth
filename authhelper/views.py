@@ -332,7 +332,8 @@ class GetTwitterRequestToken(views.APIView):
     permission_classes = (TokenHasReadWriteScope, )
 
     def post(self, request, format=None):
-        res = get_twitter_request_token(request.data['callback_uri'])
+        res = get_twitter_request_token(
+            request.data['initiator_site'], request.data['callback_uri'])
         if res.status_code == 200:
             data = {}
             for d in res.content.decode('utf-8').split('&'):
@@ -353,7 +354,10 @@ class GetTwitterUserToken(views.APIView):
 
     def post(self, request, format=None):
         res = get_twitter_user_auth_token(
-            request.data['oauth_token'], request.data['oauth_verifier'])
+            request.data['initiator_site'],
+            request.data['oauth_token'],
+            request.data['oauth_verifier']
+        )
         if res.status_code == 200:
             data = {}
             for d in res.content.decode('utf-8').split('&'):
