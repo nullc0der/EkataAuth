@@ -18,10 +18,11 @@ class Command(BaseCommand):
             fields = data['fields']
             try:
                 user = User.objects.get(username=fields['username'])
-                scopes = user.profile.get_special_scopes()
+                userprofile = user.userprofile
+                scopes = userprofile.get_special_scopes()
                 scopes.append('ekata-beta')
-                user.profile.special_scopes = ','.join(scopes)
-                user.profile.save()
+                userprofile.special_scopes = ','.join(scopes)
+                userprofile.save()
             except User.DoesNotExist:
                 self.stdout.write(
                     self.style.SUCCESS(
