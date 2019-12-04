@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def get_username(self, data):
         username = data['first_name'] + data['last_name']
         if not username:
-            username = data['email'].split('@')[0]
+            username = data['email_id'].split('@')[0]
         while self.check_username_exist(username):
             username = username + get_random_string(length=6)
         return username
