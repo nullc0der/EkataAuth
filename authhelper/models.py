@@ -58,12 +58,18 @@ class UserProfile(models.Model):
     special_scopes = models.CharField(
         default='', max_length=400,
         help_text='If multiple scope it must separated by comma')
+    created_from_email_list = models.BooleanField(default=False)
 
     def get_special_scopes(self):
         return self.special_scopes.split(',')
 
     def __str__(self):
         return self.user.username
+
+
+class UserPassword(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=10, default='')
 
 
 @receiver(post_save, sender=UserEmail)
