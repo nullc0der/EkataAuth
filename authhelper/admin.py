@@ -16,6 +16,8 @@ class UserProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(UserAdmin):
     inlines = (UserProfileInline, )
+    list_filter = ('is_staff', 'is_superuser', 'is_active',
+                   'userprofile__created_from_email_list')
 
     def get_inline_instances(self, request, obj=None):
         if not obj:
