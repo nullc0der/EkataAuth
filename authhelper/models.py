@@ -59,6 +59,7 @@ class UserProfile(models.Model):
         default='', max_length=400,
         help_text='If multiple scope it must separated by comma')
     created_from_email_list = models.BooleanField(default=False)
+    credential_email_sent = models.BooleanField(default=False)
 
     def get_special_scopes(self):
         return self.special_scopes.split(',')
