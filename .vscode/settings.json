@@ -1,8 +1,8 @@
 {
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.pythonPath": "/home/prasanta/.cache/pypoetry/virtualenvs/ekataauth-py3.7/bin/python",
-    "python.venvPath": "/home/prasanta/.cache/pypoetry/virtualenvs/ekataauth-py3.7/",
+    "python.pythonPath": "/home/prasanta/.cache/pypoetry/virtualenvs/ekataauth-bd9HAClb-py3.7/bin/python",
+    "python.venvPath": "/home/prasanta/.cache/pypoetry/virtualenvs/ekataauth-bd9HAClb-py3.7/",
     "editor.formatOnPaste": true,
     "files.insertFinalNewline": true,
     "files.exclude": {
