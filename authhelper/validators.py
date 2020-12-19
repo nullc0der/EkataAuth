@@ -20,11 +20,9 @@ class EmailDomainValidator:
         email_id_splitted = value.split('@')
         if len(email_id_splitted) > 1:
             email_domain = email_id_splitted[1]
-            domain_list_to_open = os.path.join(
-                settings.BASE_DIR,
-                '/authhelper/datas/disposable_email_domains/' +
+            domain_list_to_open = settings.BASE_DIR + \
+                '/authhelper/datas/disposable_email_domains/' + \
                 'disposable_email_domains_{}.json'.format(email_domain[0])
-            )
             if os.path.exists(domain_list_to_open):
                 with open(domain_list_to_open) as f:
                     domains = json.loads(f.read())

@@ -159,10 +159,8 @@ def send_added_social_notification(username):
 
 
 def save_disposable_email_domain_list() -> bool:
-    disposable_email_domains_dir = os.path.join(
-        settings.BASE_DIR,
-        'authclient/datas/disposable_email_domains'
-    )
+    disposable_email_domains_dir = settings.BASE_DIR + \
+        '/authhelper/datas/disposable_email_domains'
     if not os.path.isdir(disposable_email_domains_dir):
         os.makedirs(disposable_email_domains_dir)
     res = requests.get(
