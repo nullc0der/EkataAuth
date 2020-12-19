@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 
 
 class Command(BaseCommand):
-    help = "This command will add beta scopes to the users"
-    " migrated from old ekata beta dumps"
+    help = "This command will add beta scopes to the users" + \
+        " migrated from old ekata beta dumps"
 
     def add_arguments(self, parser):
         parser.add_argument('data_file', type=str)

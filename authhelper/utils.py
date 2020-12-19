@@ -1,3 +1,8 @@
+import os
+import json
+from itertools import groupby
+from operator import itemgetter
+
 import requests
 from requests_oauthlib import OAuth1
 
@@ -151,3 +156,29 @@ def send_added_social_notification(username):
         'key': settings.INTERNAL_WEBHOOK_KEY
     }
     requests.post(url, data=data)
+
+
+def save_disposable_email_domain_list() -> bool:
+    disposable_email_domains_dir = settings.BASE_DIR + \
+        '/authhelper/datas/disposable_email_domains'
+    if not os.path.isdir(disposable_email_domains_dir):
+        os.makedirs(disposable_email_domains_dir)
+    res = requests.get(
+        'https://raw.githubusercontent.com/ivolo/' +
+        'disposable-email-domains/master/index.json')
+    if res.status_code == 200:
+        splitted_domains = groupby(res.json(), key=itemgetter(0))
+        for char, domains in splitted_domains:
+            f = open(
+                '{}/disposable_email_domains_{}.json'.format(
+                    os.path.join(
+                        settings.BASE_DIR,
+                        'authhelper/datas/disposable_email_domains'
+                    ),
+                    char
+                ),
+                'w+'
+            )
+            f.write(json.dumps(list(domains)))
+        return True
+    return False

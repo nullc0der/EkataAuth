@@ -10,13 +10,14 @@ from social_django.models import UserSocialAuth
 
 from authhelper.models import (
     UserEmail, UserEmailValidation, ResetPasswordToken)
+from authhelper.validators import EmailDomainValidator
 
 
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=20)
     password = serializers.CharField()
     password1 = serializers.CharField()
-    email = serializers.EmailField()
+    email = serializers.EmailField(validators=[EmailDomainValidator()])
     email_validation = serializers.CharField()
     initiator_site = serializers.CharField()
     initiator_use_ssl = serializers.BooleanField()
@@ -114,7 +115,7 @@ class AddEmailSerializer(serializers.Serializer):
         ('mobile', 'Mobile'),
         ('emergency', 'Emergency')
     )
-    email = serializers.EmailField()
+    email = serializers.EmailField(validators=[EmailDomainValidator()])
     email_type = serializers.ChoiceField(choices=EMAIL_TYPE_CHOICES)
     access_token = serializers.CharField()
     initiator_site = serializers.CharField()
