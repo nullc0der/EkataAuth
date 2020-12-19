@@ -32,9 +32,9 @@ class Command(BaseCommand):
                                     useremail.email, useremail.user.username))
                             useremail.delete()
         self.stdout.write(
-            self.style.SUCCESS("Deleted Users: " + deleted_users_list)
+            self.style.SUCCESS("Deleted Users: " + str(deleted_users_list))
         )
         self.stdout.write(
             self.style.SUCCESS("Deleted secondary emails: " +
-                               deleted_secondary_emails_list)
+                               str(deleted_secondary_emails_list))
         )
