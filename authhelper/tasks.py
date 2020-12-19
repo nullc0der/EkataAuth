@@ -4,7 +4,11 @@ from celery import shared_task, task
 
 from django.core.management import call_command
 
-from authhelper.utils import send_validation_email, send_password_reset_email
+from authhelper.utils import (
+    send_validation_email,
+    send_password_reset_email,
+    save_disposable_email_domain_list
+)
 
 
 @shared_task
@@ -22,5 +26,10 @@ def task_send_password_reset_email(
 
 
 @task
-def clear_expired_access_tokens():
+def task_clear_expired_access_tokens():
     call_command('cleartokens')
+
+
+@task
+def task_save_disposable_email_domain_list():
+    return save_disposable_email_domain_list()

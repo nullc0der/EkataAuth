@@ -165,8 +165,12 @@ CELERY_RESULT_BACKEND = 'redis://' + get_env_var('REDIS_HOST') + ':6379/0'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULE = {
     'clear-expired-access-tokens': {
-        'task': 'authhelper.tasks.clear_expired_access_tokens',
+        'task': 'authhelper.tasks.task_clear_expired_access_tokens',
         'schedule': crontab(minute=0, hour=0)
+    },
+    'save-disposable-email-list': {
+        'task': 'authhelper.tasks.task_save_disposable_email_domain_list',
+        'schedule': crontab(minute=0, hour=0, day_of_week='sun')
     }
 }
 
