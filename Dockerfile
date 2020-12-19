@@ -10,6 +10,6 @@ RUN mkdir /ekataauth
 WORKDIR /ekataauth
 COPY pyproject.toml poetry.lock /ekataauth/
 RUN source $HOME/.poetry/env && \
-    poetry config settings.virtualenvs.create false && \
+    poetry config virtualenvs.create false && \
     poetry install --no-dev
 COPY . /ekataauth
