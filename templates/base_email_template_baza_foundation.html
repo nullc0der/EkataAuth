@@ -1,46 +1,94 @@
 {% load mjml %}
 {% mjml %}
 <mjml>
-  <mj-body>
-    <mj-wrapper border="1px solid #F6F6F6">
-        <mj-section background-url="https://beta.baza.foundation/public/img/hero_image.jpg"
-              background-size="cover"
-              background-repeat="no-repeat">
-            <mj-column>
-                <mj-image src="https://baza.foundation/public/img/baza_logo.png" alt="" align="center" border="none" width="100px" padding-left="0px" padding-right="0px" padding-bottom="10px" padding-top="10px"></mj-image>
-                <mj-text  align="center"
+    <mj-body>
+        <mj-wrapper border="1px solid #F6F6F6">
+            <mj-section
+                background-url="https://baza.foundation/public/img/hero_image.jpg"
+                background-size="cover"
+                background-repeat="no-repeat"
+            >
+                <mj-column>
+                    <mj-image
+                        src="https://baza.foundation/public/img/baza_logo.png"
+                        alt=""
+                        align="center"
+                        border="none"
+                        width="100px"
+                        padding-left="0px"
+                        padding-right="0px"
+                        padding-bottom="10px"
+                        padding-top="10px"
+                    ></mj-image>
+                    <mj-text
+                        align="center"
                         color="#FFF"
                         font-size="40px"
-                        font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol">Baza Foundation</mj-text>
-                <mj-text  align="center"
+                        font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol"
+                        >Baza Foundation</mj-text
+                    >
+                    <mj-text
+                        align="center"
                         color="#FFF"
                         font-size="20px"
-                        font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol">Because everyone needs a basic foundation</mj-text>
-            </mj-column>
-        </mj-section>
-        {% block content %}
-        {% endblock content %}
-        <mj-section background-color="#273951" padding-bottom="5px" padding-top="15px">
-        <mj-column width="100%">
-            <mj-text align="center" color="#FFF" font-size="15px" font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol" padding-left="25px" padding-right="25px" padding-bottom="10px" padding-top="0">
-            <br/>
-            <span style="font-size:15px">© 2018 Baza Foundation Inc</span>
-            <br/><br/> Contact :
-            <a href="mailto:support@baza.foundation" style='color:#FFF'>support@baza.foundation</a><br/>
-            </mj-text>
-        </mj-column>
-        </mj-section>
-        <mj-section background-color="#273951" padding="0px 30px 15px">
-            <mj-column>
-                <mj-social border-radius="15px" icon-size="30px">
-                    <mj-social-element padding="10px" href="https://facebook.com/bazafoundation/" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/facebook.png"/>
-                    <mj-social-element padding="10px" href="https://twitter.com/bazafoundation/" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/twitter.png"/>
-                    <mj-social-element padding="10px" href="https://www.instagram.com/bazafoundation/" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/instagram.png"/>
-                    <mj-social-element padding="10px" href="https://www.linkedin.com/company/bazafoundation/" src="https://www.mailjet.com/images/theme/v1/icons/ico-social/linkedin.png"/>
-                </mj-social>
-            </mj-column>
-        </mj-section>
-    </mj-wrapper>
-  </mj-body>
+                        font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol"
+                        >Because everyone needs a basic foundation</mj-text
+                    >
+                </mj-column>
+            </mj-section>
+            {% block content %} {% endblock content %}
+            <mj-section
+                background-color="#273951"
+                padding-bottom="5px"
+                padding-top="15px"
+            >
+                <mj-column width="100%">
+                    <mj-text
+                        align="center"
+                        color="#FFF"
+                        font-size="15px"
+                        font-family="Raleway, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol"
+                        padding-left="25px"
+                        padding-right="25px"
+                        padding-bottom="10px"
+                        padding-top="0"
+                    >
+                        <br />
+                        <span style="font-size: 15px"
+                            >© 2018 Baza Foundation Inc</span
+                        >
+                        <br /><br />
+                        Contact :
+                        <a
+                            href="mailto:support@baza.foundation"
+                            style="color: #fff"
+                            >support@baza.foundation</a
+                        ><br />
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+            <mj-section background-color="#273951" padding="0px 30px 15px">
+                <mj-column>
+                    <mj-social border-radius="15px" icon-size="24px">
+                        <mj-social-element
+                            padding="10px"
+                            href="https://twitter.com/bazafoundation/"
+                            src="https://baza.foundation/public/img/twitter_white.png"
+                        />
+                        <mj-social-element
+                            padding="10px"
+                            href="https://discord.gg/De92vhVD2m"
+                            src="https://baza.foundation/public/img/discord_white.png"
+                        />
+                        <mj-social-element
+                            padding="10px"
+                            href="https://t.me/bazafoundation"
+                            src="https://baza.foundation/public/img/telegram_white.png"
+                        />
+                    </mj-social>
+                </mj-column>
+            </mj-section>
+        </mj-wrapper>
+    </mj-body>
 </mjml>
 {% endmjml %}
