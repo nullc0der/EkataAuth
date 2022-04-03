@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
 from django.template import loader
 from django.conf import settings
+from django.utils.timezone import now
 
 from oauth2_provider.models import get_access_token_model
 
@@ -24,8 +25,8 @@ BASE_EMAIL_TEMPLATE = {
 }
 
 
-def send_validation_email(email_id,
-                          initiator_use_ssl, initiator_site, initiator_email):
+def send_validation_email(
+        email_id, initiator_use_ssl, initiator_site, initiator_email):
     useremail = UserEmail.objects.get(email=email_id)
     validation_key = get_random_string(length=48)
     validation_url = '%s://%s/validateemail/%s/' % (
@@ -48,6 +49,7 @@ def send_validation_email(email_id,
         useremailvalidation = UserEmailValidation.objects.get(
             useremail=useremail)
         useremailvalidation.validation_key = validation_key
+        useremailvalidation.created_on = now()
         useremailvalidation.save()
     except UserEmailValidation.DoesNotExist:
         UserEmailValidation.objects.create(
