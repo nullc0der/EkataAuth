@@ -16,7 +16,7 @@ class Command(BaseCommand):
     def send_email(self, email_id: str, username: str) -> None:
         template = loader.get_template('bazainvite.html')
         msg = EmailMultiAlternatives(
-            'You are invited to Baza.Foundation',
+            'You are invited to Baza Foundation',
             'Check html message',
             'system-noreply@baza.foundation',
             [email_id]
