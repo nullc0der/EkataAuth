@@ -753,11 +753,14 @@ class CheckInvitedToBaza(views.APIView):
         ekata
     """
 
+    authentication_classes = (OAuth2Authentication, )
+    permission_classes = (TokenHasReadWriteScope, )
+
     def get(self, request, format=None):
         try:
             user = User.objects.get(username=request.data.get('username', ''))
             if user.userprofile.invited_to_baza:
-                return Response({'result': True})
+                return Response({'invited': True})
         except User.DoesNotExist:
             pass
-        return Response({'result': False})
+        return Response({'invited': False})

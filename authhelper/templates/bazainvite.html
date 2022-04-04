@@ -1,0 +1,30 @@
+{% extends base_template %}
+{% load mjml %}
+{% mjml %}
+    {% block content %}
+        <mj-section background-color="#fafafa">
+            <mj-column width="400px">
+                <mj-text color="#525252"> Hello, {{ username }} </mj-text>
+                <mj-text color="#525252">
+                    You are receiving this because previously you were signed up on Ekata Social. Since 2018, some years ago the Ekata team decided to close our social media platform Ekata Social and pivot to Baza Foundation. Baza Foundation is an online community focused on providing a socially responsible cryptocurrency based basic income.
+                </mj-text>
+                <mj-text color="#525252">
+                    Our belief is that the future of money should work for everyone and the future of money will be built using the advancements in distributed blockchain protocols. We all have stake in the use of currency and therefor we should all receive a dividend return. ie basic income.
+                </mj-text>
+                <mj-text color="#525252">
+                    Because of your previous interests, and we wanted to clean up our old database, we are inviting you to join this community. In addition, all new signups from Ekata Social will receive 1000 $BAZA coins to their online wallet accounts.
+                </mj-text>
+                <mj-text color="#525252">
+                     Please come and join use on this journey at <a style="color: #525252" href="https://baza.foundation/">baza.foundation</a>
+                </mj-text>
+                <mj-text color="#525252">
+                    All Ekata accounts that are incomplete and over 90 days inactive from receiving this email will be deactivated and archived for deletion.
+                </mj-text>
+                <mj-text color="#525252">
+                    Thank you,<br />
+                    Baza Foundation Team
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    {% endblock content %}
+{% endmjml %}
