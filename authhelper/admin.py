@@ -12,7 +12,11 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Profile'
     fk_name = 'user'
-    exclude = ['created_from_email_list', 'credential_email_sent']
+    exclude = [
+        'created_from_email_list',
+        'credential_email_sent',
+        'invited_to_baza'
+    ]
 
 
 class CustomUserAdmin(UserAdmin):

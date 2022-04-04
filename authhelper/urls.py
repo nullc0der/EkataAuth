@@ -26,5 +26,6 @@ urlpatterns = [
     path('resendvalidationemail/', views.ResendValidationEmailView.as_view()),
     path('userhaspassword/', views.CheckUserHasUsablePassword.as_view()),
     path('usersocialphoto/', views.UserSocialProfilePhoto.as_view()),
-    path('usersocialcredentials/', views.UserSocialCredentials.as_view())
+    path('usersocialcredentials/', views.UserSocialCredentials.as_view()),
+    path('checkinvitedtobaza/', views.CheckInvitedToBaza.as_view())
 ]

@@ -745,3 +745,19 @@ class UserSocialCredentials(views.APIView):
         if provider == 'twitter':
             credentials = self.get_user_twitter_credentials(user)
         return Response(credentials)
+
+
+class CheckInvitedToBaza(views.APIView):
+    """
+        This API will be used to check whether an user was invited to baza from
+        ekata
+    """
+
+    def get(self, request, format=None):
+        try:
+            user = User.objects.get(username=request.data.get('username', ''))
+            if user.userprofile.invited_to_baza:
+                return Response({'result': True})
+        except User.DoesNotExist:
+            pass
+        return Response({'result': False})
