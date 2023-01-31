@@ -194,10 +194,12 @@ def add_useremail_to_listmonk_subscribers(useremail_id: int) -> str:
         "username": useremail.user.username,
         "email_type": useremail.email_type
     }
+    full_name = useremail.user.get_full_name(
+    ) if useremail.user.get_full_name() else useremail.user.username
     res = requests.post(
         f"{settings.LISTMONK_SERVER_URL}/api/subscribers",
         json={
-            "name": useremail.user.get_full_name(),
+            "name": full_name,
             "email": useremail.email,
             "status": "enabled",
             "lists": settings.LISTMONK_SUBSCRIBERS_LIST,
