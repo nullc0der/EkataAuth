@@ -208,8 +208,6 @@ def add_useremail_to_listmonk_subscribers(useremail_id: int) -> str:
             settings.LISTMONK_API_USERNAME,
             settings.LISTMONK_API_PASSWORD)
     )
-    print(res.status_code)
-    print(res.content)
     if res.status_code == 200:
         response_data = res.json().get("data", {})
         useremail.added_to_listmonk = True
