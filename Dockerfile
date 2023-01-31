@@ -6,11 +6,12 @@ RUN apk add build-base linux-headers postgresql-client \
     gcc musl-dev openssl-dev cargo
 RUN ln -s /usr/bin/python3 /usr/bin/python
 # RUN ln -s /usr/bin/pip3 /usr/bin/pip
-RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+ENV POETRY_HOME=/opt/poetry
+ENV PATH="$POETRY_HOME/bin:$PATH"
+RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN mkdir /ekataauth
 WORKDIR /ekataauth
 COPY pyproject.toml poetry.lock /ekataauth/
-RUN source $HOME/.poetry/env && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+RUN poetry config virtualenvs.create false && \
+    poetry install --only=main --no-root
 COPY . /ekataauth
