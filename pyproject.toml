@@ -6,17 +6,17 @@ authors = ["Prasanta <prasantakakati1994@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-django = "2.1.5"
+django = "2.2"
 djangorestframework = "3.9.0"
 celery = "4.4.0"
 redis = "3.3.11"
 uwsgi = "2.0.17.1"
 "django-rest-framework-social-oauth2" = "1.1.0"
 raven = "6.10.0"
-django-mjml = "0.6.0"
 tweepy = "3.7.0"
 django-oauth-toolkit = "^1.2"
 psycopg2-binary = "2.8.6"
+django-mjml = "^1.0"
 
 [tool.poetry.dev-dependencies]
 "pep8" = "1.7.1"
