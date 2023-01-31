@@ -7,7 +7,8 @@ from django.core.management import call_command
 from authhelper.utils import (
     send_validation_email,
     send_password_reset_email,
-    save_disposable_email_domain_list
+    save_disposable_email_domain_list,
+    add_useremail_to_listmonk_subscribers
 )
 
 
@@ -33,3 +34,8 @@ def task_clear_expired_access_tokens():
 @task
 def task_save_disposable_email_domain_list():
     return save_disposable_email_domain_list()
+
+
+@shared_task
+def task_add_useremail_to_listmonk_subscribers(useremail_id: int) -> str:
+    return add_useremail_to_listmonk_subscribers(useremail_id)

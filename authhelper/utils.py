@@ -5,6 +5,7 @@ from operator import itemgetter
 
 import requests
 from requests_oauthlib import OAuth1
+from requests.auth import HTTPBasicAuth
 
 from django.core.mail import EmailMultiAlternatives
 from django.utils.crypto import get_random_string
@@ -184,3 +185,34 @@ def save_disposable_email_domain_list() -> bool:
             f.write(json.dumps(list(domains)))
         return True
     return False
+
+
+def add_useremail_to_listmonk_subscribers(useremail_id: int) -> str:
+    useremail = UserEmail.objects.get(id=useremail_id)
+    additional_data = {
+        "user_id": useremail.user.id,
+        "username": useremail.user.username,
+        "email_type": useremail.email_type
+    }
+    res = requests.post(
+        f"{settings.LISTMONK_SERVER_URL}/api/subscribers",
+        json={
+            "name": useremail.user.get_full_name(),
+            "email": useremail.email,
+            "status": "enabled",
+            "lists": settings.LISTMONK_SUBSCRIBERS_LIST,
+            "attribs": additional_data,
+            "preconfirm_subscription": True
+        },
+        auth=HTTPBasicAuth(
+            settings.LISTMONK_API_USERNAME,
+            settings.LISTMONK_API_PASSWORD)
+    )
+    if res.status_code == 200:
+        response_data = res.json().get("data", {})
+        useremail.added_to_listmonk = True
+        useremail.listmonk_id = response_data.get("id", None)
+        useremail.listmonk_uuid = response_data.get("uuid", None)
+        useremail.save()
+        return f"Added useremail_id:{useremail_id}"
+    return f"Failed to add useremail_id:{useremail_id}, status code:{res.status_code}"

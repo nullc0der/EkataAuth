@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 # Create your models here.
 
@@ -21,6 +19,9 @@ class UserEmail(models.Model):
     verified = models.BooleanField(default=False)
     email_type = models.CharField(
         max_length=10, default='office', choices=EMAIL_TYPE_CHOICES)
+    added_to_listmonk = models.BooleanField(default=False)
+    listmonk_id = models.IntegerField(null=True)
+    listmonk_uuid = models.UUIDField(null=True)
 
     def save(self, *args, **kwargs):
         if self.primary:
@@ -72,19 +73,3 @@ class UserProfile(models.Model):
 class UserPassword(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     password = models.CharField(max_length=10, default='')
-
-
-@receiver(post_save, sender=UserEmail)
-def update_user_email(sender, **kwargs):
-    useremail = kwargs['instance']
-    if useremail.verified and useremail.primary:
-        useremail.user.email = useremail.email
-        useremail.user.save()
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(
-            user=instance
-        )
